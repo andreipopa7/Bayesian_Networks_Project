@@ -108,32 +108,3 @@ class BayesianNetwork:
         # daca nodul are parinti se folosesc valorile conditionate
         parent_values = ",".join(evidence[parent] for parent in parents)
         return node_data["probabilities"][parent_values][evidence[node]]
-
-
-#algoritmul lui Kahn care face sortarea topologica
-#functie care  primeste parametru un dictionar in care cheile sunt noduri si valorile sunt liste denoduri vecine
-#functia asta returneaza o lista cu noduri sortate topologic sau valoarea"none" daca am ciclu in graf
-def kahn_topological_sort(graph):
-    #initializez SD
-    in_degree = {node: 0 for node in graph}
-    for neighbors in graph.values():
-        for neighbor in neighbors:
-            in_degree[neighbor] += 1
-
-    #incep cu nodurile care nu au muchii de intrare
-    s = [node for node, degree in in_degree.items() if degree == 0]
-    l = []
-
-    while s:
-        n = s.pop(0)
-        l.append(n)
-        for m in graph.get(n, []):
-            in_degree[m] -= 1
-            if in_degree[m] == 0:
-                s.append(m)
-
-    #cazul cand graful are mai are muchii => are un ciclu
-    if any(degree > 0 for degree in in_degree.values()):
-        return None
-
-    return l
