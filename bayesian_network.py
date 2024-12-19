@@ -11,7 +11,7 @@ class BayesianNetwork:
         Functie care incarca reteaua beyesiana dintr-un fisier JSON
         :param filename: numele fisierului JSON
         """
-        self.evidence = None
+        self.evidence = {}
         with open(filename, 'r') as file:
             self.network = json.load(file)["nodes"]
 
@@ -109,6 +109,15 @@ class BayesianNetwork:
         parent_values = ",".join(evidence[parent] for parent in parents)
         return node_data["probabilities"][parent_values][evidence[node]]
 
+    def p_e_query(self, evidence):
+        """
+        Functie care calculeaza probabilitatea evidentelor P(E=e) pe baza retelei bayesiene.
+        :param evidence: nodurile observate
+        :return: probabilitatea evidentelor curente
+        """
+        all_variables = list(self.network.keys())
+        return self.enumerate_all(all_variables, evidence)
+
 
 #algoritmul lui Kahn care face sortarea topologica
 #functie care  primeste parametru un dictionar in care cheile sunt noduri si valorile sunt liste denoduri vecine
@@ -135,5 +144,6 @@ def kahn_topological_sort(graph):
     #cazul cand graful are mai are muchii => are un ciclu
     if any(degree > 0 for degree in in_degree.values()):
         return None
-
     return l
+
+
