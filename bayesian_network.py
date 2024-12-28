@@ -118,6 +118,64 @@ class BayesianNetwork:
         all_variables = list(self.network.keys())
         return self.enumerate_all(all_variables, evidence)
 
+    def find_irrelevant_nodes(self, query_node, evidence):
+        """
+        Identifică nodurile irelevante pentru calcularea probabilității unui nod interogat,
+        având în vedere evidențele.
+        :param query_node: Nodul pentru care se face interogarea.
+        :param evidence: Evidențele curente (dicționar).
+        :return: O listă de noduri irelevante.
+        """
+
+        def is_active_path(current_node, target_node, visited, direction, evidence):
+            """
+            Verifică recursiv dacă există o cale activă între nodul curent și cel țintă.
+            :param current_node: Nodul curent.
+            :param target_node: Nodul țintă.
+            :param visited: Nodurile deja vizitate pentru a evita cicluri.
+            :param direction: Direcția relației (ex. "parent", "child").
+            :param evidence: Nodurile observate care pot bloca calea.
+            :return: True dacă există o cale activă.
+            """
+            if current_node in visited:
+                return False
+            visited.add(current_node)
+
+            # Dacă am ajuns la nodul țintă
+            if current_node == target_node:
+                return True
+
+            # Verifică părinții (căi de sus în jos)
+            if direction in ("child", "both"):
+                for parent in self.network[current_node]["parents"]:
+                    if parent not in evidence and is_active_path(parent, target_node, visited, "parent", evidence):
+                        return True
+
+            # Verifică copiii (căi de jos în sus)
+            if direction in ("parent", "both"):
+                for child, data in self.network.items():
+                    if current_node in data["parents"]:
+                        if current_node not in evidence:
+                            if is_active_path(child, target_node, visited, "child", evidence):
+                                return True
+
+            return False
+
+        # Nodurile relevante sunt cele conectate printr-o cale activă
+        relevant_nodes = set()
+        for node in self.network.keys():
+            if node == query_node or is_active_path(node, query_node, set(), "both", evidence):
+                relevant_nodes.add(node)
+
+        # Adaugă nodurile din evidențe la cele relevante
+        relevant_nodes.update(evidence.keys())
+
+        # Nodurile irelevante sunt cele care nu sunt în nodurile relevante
+        all_nodes = set(self.network.keys())
+        irrelevant_nodes = list(all_nodes - relevant_nodes)
+
+        return irrelevant_nodes
+
 
 #algoritmul lui Kahn care face sortarea topologica
 #functie care  primeste parametru un dictionar in care cheile sunt noduri si valorile sunt liste denoduri vecine

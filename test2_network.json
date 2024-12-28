@@ -100,13 +100,13 @@
       "parents": ["S4"],
       "probabilities": {
         "B1": {
-          "Left": 1.00,
-          "Straight": 0.00,
-          "Right": 0.00
+          "Stanga": 1.00,
+          "Inainte": 0.00,
+          "Dreapta": 0.00
         },
         "B2": {
           "Stanga": 0.00,
-          "Inainte": 1,
+          "Inainte": 1.00,
           "Dreapta": 0.00
         },
         "B3": {

@@ -77,9 +77,40 @@ class BayesianGUI:
         self.result_text = tk.Text(root, height=5, width=60, state="disabled")
         self.result_text.pack(pady=10)
 
+        self.irrelevant_button = tk.Button(self.control_frame, text="Find Irrelevant Nodes",
+                                           command=self.show_irrelevant_nodes, state="disabled", width=20)
+        self.irrelevant_button.grid(row=3, column=3, padx=5, pady=5)
 
+    def show_irrelevant_nodes(self):
+        """
+        Afișează nodurile irelevante pentru interogare, pe baza rețelei și a evidențelor.
+        """
+        if not self.network:
+            messagebox.showwarning("Warning", "Please load a network first!")
+            return
 
+        query_node = self.query_node_var.get()
+        if not query_node:
+            messagebox.showerror("Error", "Please select a query node.")
+            return
 
+        if query_node not in self.network.network:
+            messagebox.showerror("Error", f"Query node '{query_node}' does not exist in the network.")
+            return
+
+        try:
+            irrelevant_nodes = self.network.find_irrelevant_nodes(query_node, self.evidence)
+            self.result_text.config(state="normal")
+            self.result_text.delete("1.0", tk.END)
+            self.result_text.insert(tk.END, f"Irrelevant Nodes for query '{query_node}':\n")
+            if irrelevant_nodes:
+                for node in irrelevant_nodes:
+                    self.result_text.insert(tk.END, f"{node}\n")
+            else:
+                self.result_text.insert(tk.END, "No irrelevant nodes found.\n")
+            self.result_text.config(state="disabled")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to find irrelevant nodes: {e}")
 
 
     def load_network(self):
@@ -96,6 +127,7 @@ class BayesianGUI:
 
 
                 self.pe_query_button.config(state="normal")
+                self.irrelevant_button.config(state="normal")
 
 
                 self.delete_network_button.config(state="normal")
