@@ -120,38 +120,39 @@ class BayesianNetwork:
 
     def find_irrelevant_nodes(self, query_node, evidence):
         """
-        Identifică nodurile irelevante pentru calcularea probabilității unui nod interogat,
-        având în vedere evidențele.
-        :param query_node: Nodul pentru care se face interogarea.
-        :param evidence: Evidențele curente (dicționar).
-        :return: O listă de noduri irelevante.
+        Identifica nodurile irelevante pentru calcularea probabilitatii unui nod interogat,
+        avand in vedere evidentele
+        :param query_node: Nodul pentru care se face interogarea
+        :param evidence: Evidentele curente
+        :return: O lista de noduri irelevante
         """
 
         def is_active_path(current_node, target_node, visited, direction, evidence):
             """
-            Verifică recursiv dacă există o cale activă între nodul curent și cel țintă.
-            :param current_node: Nodul curent.
-            :param target_node: Nodul țintă.
-            :param visited: Nodurile deja vizitate pentru a evita cicluri.
-            :param direction: Direcția relației (ex. "parent", "child").
-            :param evidence: Nodurile observate care pot bloca calea.
-            :return: True dacă există o cale activă.
+            Verifica recursiv daca exista o cale activa intre nodul curent si cel tinta.
+            :param current_node: Nodul curent
+            :param target_node: Nodul tinta
+            :param visited: Nodurile deja vizitate pentru a evita cicluri
+            :param direction: Directia relatiei (ex. "parent", "child")
+            :param evidence: Nodurile observate care pot bloca calea
+            :return: True daca exista o cale activa
             """
             if current_node in visited:
                 return False
             visited.add(current_node)
 
-            # Dacă am ajuns la nodul țintă
+
+            # Daca am ajuns la nodul tinta
             if current_node == target_node:
                 return True
 
-            # Verifică părinții (căi de sus în jos)
+            # Verifica parintii (cai de sus in jos)
             if direction in ("child", "both"):
                 for parent in self.network[current_node]["parents"]:
                     if parent not in evidence and is_active_path(parent, target_node, visited, "parent", evidence):
                         return True
 
-            # Verifică copiii (căi de jos în sus)
+            # Verifica copiii (cai de jos in sus)
             if direction in ("parent", "both"):
                 for child, data in self.network.items():
                     if current_node in data["parents"]:
@@ -161,16 +162,16 @@ class BayesianNetwork:
 
             return False
 
-        # Nodurile relevante sunt cele conectate printr-o cale activă
+        # Nodurile relevante sunt cele conectate printr-o cale activa
         relevant_nodes = set()
         for node in self.network.keys():
             if node == query_node or is_active_path(node, query_node, set(), "both", evidence):
                 relevant_nodes.add(node)
 
-        # Adaugă nodurile din evidențe la cele relevante
+        # Adauga nodurile din evidente la cele relevante
         relevant_nodes.update(evidence.keys())
 
-        # Nodurile irelevante sunt cele care nu sunt în nodurile relevante
+        # Nodurile irelevante sunt cele care nu sunt in nodurile relevante
         all_nodes = set(self.network.keys())
         irrelevant_nodes = list(all_nodes - relevant_nodes)
 
